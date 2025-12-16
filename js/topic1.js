@@ -403,7 +403,7 @@ function drawBoxplot(data, s, label) {
   const w = boxCanvas.width;
   const h = boxCanvas.height;
 
-  const padL = 85, padR = 35, padT = 45, padB = 55;
+  const padL = 85, padR = 35, padT = 45, padB = 85;
   const y = (padT + (h - padB)) / 2;
 
   const min = Math.min(...data);
@@ -430,6 +430,31 @@ function drawBoxplot(data, s, label) {
   const xMed = scaleX(s.median);
   const xWMin = scaleX(s.whiskMin);
   const xWMax = scaleX(s.whiskMax);
+
+  // ---- Label Q1, Median (Q2), Q3 on the diagram ----
+bctx.fillStyle = "#111";
+bctx.font = "12px system-ui";
+
+// Put labels just above the box
+bctx.fillText("Q1", xQ1 - 8, y - 28);
+bctx.fillText("Q2", xMed - 8, y - 28);
+bctx.fillText("Q3", xQ3 - 8, y - 28);
+
+// ---- Label LF and UF on the diagram ----
+const xLF = scaleX(s.lowerFence);
+const xUF = scaleX(s.upperFence);
+
+// draw small tick marks at LF/UF on the axis
+bctx.strokeStyle = "#444";
+bctx.beginPath();
+bctx.moveTo(xLF, y - 10); bctx.lineTo(xLF, y + 10);
+bctx.moveTo(xUF, y - 10); bctx.lineTo(xUF, y + 10);
+bctx.stroke();
+
+// label them above the axis
+bctx.fillText("LF", xLF - 8, y + 28);
+bctx.fillText("UF", xUF - 8, y + 28);
+ 
 
   // Whiskers
   bctx.strokeStyle = "#111";
