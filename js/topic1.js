@@ -405,7 +405,7 @@ function drawBoxplot(data, s, label) {
 
   const padL = 85, padR = 35, padT = 45, padB = 85;
   //const y = (padT + (h - padB)) / 2;
-  const y = padT + (h - padT - padB) * 0.55;
+  const y = padT + (h - padT - padB) * 0.45;
 
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -415,7 +415,7 @@ function drawBoxplot(data, s, label) {
 
   // Title
   bctx.fillStyle = "#111";
-  bctx.font = "16px system-ui";
+  bctx.font = "12px system-ui";
   bctx.fillText(`Box-and-Whisker Plot: ${label}`, padL, 22);
 
   // Axis
@@ -437,9 +437,9 @@ function drawBoxplot(data, s, label) {
   bctx.font = "12px system-ui";
 
 // Put labels just above the box
-  bctx.fillText("Q1", xQ1 - 8, y - 28);
-  bctx.fillText("Q2", xMed - 8, y - 28);
-  bctx.fillText("Q3", xQ3 - 8, y - 28);
+  bctx.fillText("Q1", xQ1 - 8, y - 38);
+  bctx.fillText("Q2", xMed - 8, y - 52);
+  bctx.fillText("Q3", xQ3 - 8, y - 38);
 
 // ---- Label LF and UF on the diagram ----
   const xLF = scaleX(s.lowerFence);
@@ -453,8 +453,8 @@ function drawBoxplot(data, s, label) {
   bctx.stroke();
 
 // label them above the axis
-  bctx.fillText("LF", xLF - 8, y + 28);
-  bctx.fillText("UF", xUF - 8, y + 28);
+  bctx.fillText("LF", xLF - 10, y + 30);
+  bctx.fillText("UF", xUF - 10, y + 30);
  
 
   // Whiskers
@@ -471,8 +471,10 @@ function drawBoxplot(data, s, label) {
   bctx.moveTo(xWMin, y - 14); bctx.lineTo(xWMin, y + 14);
   bctx.moveTo(xWMax, y - 14); bctx.lineTo(xWMax, y + 14);
   bctx.stroke();
+  bctx.lineWidth = 1;
 
   // Box
+  bctx.lineWidth = 2;
   bctx.fillStyle = "#c7d2fe";
   bctx.fillRect(xQ1, y - 30, xQ3 - xQ1, 60);
   bctx.strokeRect(xQ1, y - 30, xQ3 - xQ1, 60);
