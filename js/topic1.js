@@ -418,8 +418,8 @@ function drawBoxplot(data, s, label) {
   bctx.font = "12px system-ui";
   bctx.fillText(`Box-and-Whisker Plot: ${label}`, padL, 22);
 
-  bctx.font = "12px system-ui";
-  bctx.fillText("THICK BOX TEST ✅", padL, 42);
+  //bctx.font = "12px system-ui";
+  //bctx.fillText("THICK BOX TEST ✅", padL, 42);
 
 
   // Axis
