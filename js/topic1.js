@@ -2,13 +2,15 @@
 // Online Stats Solver — Topic 1 (Corrected + Robust)
 // Descriptive Statistics ONLY
 // =====================================================
+
+// --- DEBUG: confirm JS is running ---
 const resultsBox = document.getElementById("results");
 if (resultsBox) resultsBox.textContent = "✅ JavaScript loaded. Now choose a CSV file.";
 
+// HTML elements
 const fileInput = document.getElementById("fileInput");
 const columnSelect = document.getElementById("columnSelect");
 const columnNote = document.getElementById("columnNote");
-const resultsBox = document.getElementById("results");
 
 const histCanvas = document.getElementById("histCanvas");
 const boxCanvas  = document.getElementById("boxCanvas");
@@ -18,6 +20,9 @@ const bctx = boxCanvas.getContext("2d");
 
 let dataTable = null;
 
+// =====================================================
+// 1) CSV Upload
+// =====================================================
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -35,6 +40,9 @@ fileInput.addEventListener("change", async () => {
   clearCanvas(bctx, boxCanvas);
 });
 
+// =====================================================
+// 2) Variable Selection
+// =====================================================
 columnSelect.addEventListener("change", () => {
   if (!dataTable) return;
 
@@ -53,7 +61,9 @@ columnSelect.addEventListener("change", () => {
   drawBoxplot(values, stats, col);
 });
 
-// ---------------- CSV parsing (handles quotes) ----------------
+// =====================================================
+// CSV Parsing (basic quotes support)
+// =====================================================
 function parseCSV(text) {
   const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
   const headers = splitCSVLine(lines[0]).map(h => h.trim());
@@ -83,7 +93,9 @@ function splitCSVLine(line) {
   return out;
 }
 
-// ---------------- Numeric handling ----------------
+// =====================================================
+// Numeric handling
+// =====================================================
 function toNumber(s) {
   if (s == null) return NaN;
   const cleaned = String(s).trim().replace(/,/g, ""); // allow 12,000
@@ -98,6 +110,7 @@ function detectNumericColumns(table) {
   });
 }
 
+// ✅ This version includes a placeholder so change always fires
 function populateDropdown(columns) {
   columnSelect.innerHTML = "";
 
@@ -109,6 +122,12 @@ function populateDropdown(columns) {
 
   columnSelect.disabled = false;
   columnNote.textContent = "Numeric variables only.";
+
+  const placeholder = document.createElement("option");
+  placeholder.textContent = "Select a variable";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  columnSelect.appendChild(placeholder);
 
   columns.forEach(c => {
     const opt = document.createElement("option");
@@ -122,7 +141,9 @@ function getNumericColumn(table, col) {
   return table.rows.map(r => toNumber(r[col])).filter(v => Number.isFinite(v));
 }
 
-// ---------------- Stats ----------------
+// =====================================================
+// Descriptive statistics
+// =====================================================
 function computeStats(x) {
   const n = x.length;
   const xs = [...x].sort((a,b) => a-b);
@@ -133,7 +154,7 @@ function computeStats(x) {
     ? xs[(n - 1) / 2]
     : (xs[n/2 - 1] + xs[n/2]) / 2;
 
-  // Mode (exact match frequency; OK for learner datasets)
+  // Mode (exact match frequency)
   const freq = new Map();
   for (const v of xs) freq.set(v, (freq.get(v) ?? 0) + 1);
 
@@ -156,12 +177,12 @@ function computeStats(x) {
 
   const outliers = xs.filter(v => v < lowerFence || v > upperFence);
 
-  // Whiskers: min/max within fences (standard boxplot convention)
+  // Whiskers: min/max within fences (standard convention)
   const inRange = xs.filter(v => v >= lowerFence && v <= upperFence);
   const whiskMin = inRange.length ? inRange[0] : xs[0];
   const whiskMax = inRange.length ? inRange[inRange.length - 1] : xs[n - 1];
 
-  // Skewness guard: if sd == 0, define skewness = 0 (no spread)
+  // Skewness guard
   let skewness = 0;
   if (sd > 0) {
     const m3 = xs.reduce((s,v) => s + (v - mean) ** 3, 0) / n;
@@ -187,6 +208,10 @@ function quantile(sorted, p) {
   const hi = Math.ceil(i);
   if (lo === hi) return sorted[lo];
   return sorted[lo] + (i - lo) * (sorted[hi] - sorted[lo]);
+}
+
+function fmt(v) {
+  return Number.isFinite(v) ? v.toFixed(3) : String(v);
 }
 
 function formatSummary(col, n, s) {
@@ -221,16 +246,14 @@ function formatSummary(col, n, s) {
   ].join("\n");
 }
 
-function fmt(v) {
-  return Number.isFinite(v) ? v.toFixed(3) : String(v);
-}
-
-// ---------------- Graphics ----------------
+// =====================================================
+// Graphics helpers
+// =====================================================
 function clearCanvas(ctx, canvas) {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// Histogram (frequency). Handles constant data safely.
+// ---------------- Histogram (frequency) ----------------
 function drawHistogram(data, label) {
   clearCanvas(hctx, histCanvas);
 
@@ -291,7 +314,7 @@ function drawHistogram(data, label) {
   }
 }
 
-// Proper boxplot: box, median, whiskers, outliers (red)
+// ---------------- Boxplot ----------------
 function drawBoxplot(data, s, label) {
   clearCanvas(bctx, boxCanvas);
 
@@ -300,11 +323,8 @@ function drawBoxplot(data, s, label) {
   const pad = 70;
   const yMid = h / 2;
 
-  // Scale over full data range (includes outliers)
   const min = Math.min(...data);
   const max = Math.max(...data);
-
-  // Guard: constant data
   const denom = (max - min) || 1;
   const scaleX = v => pad + ((v - min) / denom) * (w - 2 * pad);
 
@@ -331,7 +351,7 @@ function drawBoxplot(data, s, label) {
   bctx.lineWidth = 1.5;
   bctx.strokeRect(xQ1, yMid - 22, xQ3 - xQ1, 44);
 
-  // Median line
+  // Median
   const xMed = scaleX(s.median);
   bctx.beginPath();
   bctx.moveTo(xMed, yMid - 22);
@@ -349,13 +369,13 @@ function drawBoxplot(data, s, label) {
   bctx.lineTo(xWMax, yMid);
   bctx.stroke();
 
-  // Whisker caps
+  // Caps
   bctx.beginPath();
   bctx.moveTo(xWMin, yMid - 14); bctx.lineTo(xWMin, yMid + 14);
   bctx.moveTo(xWMax, yMid - 14); bctx.lineTo(xWMax, yMid + 14);
   bctx.stroke();
 
-  // Outliers (red)
+  // Outliers
   bctx.fillStyle = "red";
   for (const v of s.outliers) {
     const xo = scaleX(v);
@@ -370,3 +390,6 @@ function drawBoxplot(data, s, label) {
   bctx.fillText(`Lower fence: ${s.lowerFence.toFixed(2)}`, pad, h - 10);
   bctx.fillText(`Upper fence: ${s.upperFence.toFixed(2)}`, w - pad - 160, h - 10);
 }
+
+
+  
