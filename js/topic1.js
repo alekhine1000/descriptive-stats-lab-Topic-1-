@@ -252,6 +252,27 @@ function formatSummary(col, n, s) {
 function clearCanvas(ctx, canvas) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
+function formatTick(v) {
+  // Salary-friendly formatting
+  if (!Number.isFinite(v)) return "";
+  return Math.round(v).toLocaleString();
+}
+
+function niceTicks(min, max, n = 6) {
+  if (min === max) return [min];
+  const span = max - min;
+  const raw = span / (n - 1);
+
+  const pow10 = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = Math.ceil(raw / pow10) * pow10;
+
+  const start = Math.floor(min / step) * step;
+  const end = Math.ceil(max / step) * step;
+
+  const ticks = [];
+  for (let v = start; v <= end + 1e-9; v += step) ticks.push(v);
+  return ticks;
+}
 
 // ---------------- Histogram (frequency) ----------------
 function drawHistogram(data, label) {
@@ -272,133 +293,205 @@ function drawHistogram(data, label) {
   data.forEach(v => {
     let i = Math.floor((v - min) / width);
     if (i >= bins) i = bins - 1;
+    if (i < 0) i = 0;
     counts[i]++;
   });
 
-  const pad = 70;
+  const padL = 85;   // more room for y tick labels
+  const padR = 35;
+  const padT = 55;
+  const padB = 70;   // more room for x tick labels + caption
+
   const w = histCanvas.width;
   const h = histCanvas.height;
-  const plotW = w - 2*pad;
-  const plotH = h - 2*pad;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
 
-  const maxCount = Math.max(...counts);
+  const maxCount = Math.max(...counts, 1);
   const barW = plotW / bins;
 
   // Title
   hctx.fillStyle = "#111";
   hctx.font = "16px system-ui";
-  hctx.fillText(`Histogram (Frequency): ${label}`, pad, 24);
+  hctx.fillText(`Histogram (Frequency): ${label}`, padL, 22);
 
   // Subtitle
   hctx.font = "12px system-ui";
-  hctx.fillText("Bars show number of observations in each range", pad, 42);
+  hctx.fillText("Bars show the number of observations in each range", padL, 40);
 
   // Axes
   hctx.strokeStyle = "#222";
   hctx.beginPath();
-  hctx.moveTo(pad, h-pad);
-  hctx.lineTo(w-pad, h-pad);
-  hctx.moveTo(pad, h-pad);
-  hctx.lineTo(pad, pad);
+  hctx.moveTo(padL, h - padB);
+  hctx.lineTo(w - padR, h - padB);
+  hctx.moveTo(padL, h - padB);
+  hctx.lineTo(padL, padT);
   hctx.stroke();
 
   // Axis labels
+  hctx.fillStyle = "#111";
   hctx.font = "13px system-ui";
-  hctx.fillText("Salary (RM)", w/2 - 30, h - 10);
+  hctx.fillText("Salary (RM)", padL + plotW/2 - 35, h - 12);
+
   hctx.save();
   hctx.rotate(-Math.PI/2);
-  hctx.fillText("Frequency", -h/2 - 30, 20);
+  hctx.fillText("Frequency", -(padT + plotH/2 + 25), 22);
   hctx.restore();
+
+  // Y ticks (0 to maxCount)
+  const yTicks = niceTicks(0, maxCount, 5);
+  hctx.font = "11px system-ui";
+  yTicks.forEach(t => {
+    const y = (h - padB) - (t / maxCount) * plotH;
+
+    // tick mark
+    hctx.strokeStyle = "#555";
+    hctx.beginPath();
+    hctx.moveTo(padL - 6, y);
+    hctx.lineTo(padL, y);
+    hctx.stroke();
+
+    // label
+    hctx.fillStyle = "#111";
+    hctx.fillText(String(Math.round(t)), padL - 32, y + 4);
+  });
+
+  // X ticks (min to max)
+  const xTicks = niceTicks(min, max, 6);
+  xTicks.forEach(t => {
+    const x = padL + ((t - min) / (max - min)) * plotW;
+
+    // tick mark
+    hctx.strokeStyle = "#555";
+    hctx.beginPath();
+    hctx.moveTo(x, h - padB);
+    hctx.lineTo(x, h - padB + 6);
+    hctx.stroke();
+
+    // label
+    hctx.fillStyle = "#111";
+    hctx.fillText(formatTick(t), x - 16, h - padB + 22);
+  });
 
   // Bars
   hctx.fillStyle = "#4f46e5";
   counts.forEach((c,i) => {
     const barH = (c / maxCount) * plotH;
-    hctx.fillRect(pad + i*barW + 1, h - pad - barH, barW - 2, barH);
+    hctx.fillRect(padL + i*barW + 1, (h - padB) - barH, barW - 2, barH);
   });
 
   // Normal curve (visual comparison only)
-  hctx.strokeStyle = "orange";
-  hctx.beginPath();
-  for (let px = 0; px <= plotW; px++) {
-    const xVal = min + (px/plotW)*(max-min);
-    const yVal = (1/(sd*Math.sqrt(2*Math.PI))) *
-                 Math.exp(-0.5*((xVal-mean)/sd)**2);
-    const yScaled = yVal * maxCount * width;
-    const yPix = h - pad - (yScaled/maxCount)*plotH;
-    if (px === 0) hctx.moveTo(pad+px, yPix);
-    else hctx.lineTo(pad+px, yPix);
-  }
-  hctx.stroke();
+  if (sd > 0) {
+    hctx.strokeStyle = "orange";
+    hctx.lineWidth = 2;
+    hctx.beginPath();
+    for (let px = 0; px <= plotW; px++) {
+      const xVal = min + (px/plotW)*(max-min);
+      const yVal = (1/(sd*Math.sqrt(2*Math.PI))) * Math.exp(-0.5*((xVal-mean)/sd)**2);
 
-  // Caption
-  hctx.font = "12px system-ui";
+      // scale pdf to histogram frequency scale
+      const yScaled = yVal * n * width; // expected count in bin-width
+      const yPix = (h - padB) - (yScaled / maxCount) * plotH;
+
+      if (px === 0) hctx.moveTo(padL + px, yPix);
+      else hctx.lineTo(padL + px, yPix);
+    }
+    hctx.stroke();
+    hctx.lineWidth = 1;
+  }
+
+  // Caption (always visible)
   hctx.fillStyle = "#111";
+  hctx.font = "12px system-ui";
   hctx.fillText(
-    "Normal curve uses same mean and SD (visual comparison only)",
-    pad, h - pad + 18
+    "The normal curve shown uses the same mean and standard deviation as the data and is included only for visual comparison.",
+    padL, h - 35
   );
 }
 
-  
 // ---------------- Boxplot ----------------
 function drawBoxplot(data, s, label) {
   clearCanvas(bctx, boxCanvas);
 
   const w = boxCanvas.width;
   const h = boxCanvas.height;
-  const pad = 70;
-  const y = h/2;
+
+  const padL = 85;  // room for labels
+  const padR = 35;
+  const padT = 40;
+  const padB = 35;
+
+  const y = (padT + (h - padB)) / 2;
 
   const min = Math.min(...data);
   const max = Math.max(...data);
-  const scaleX = v => pad + (v-min)/(max-min)*(w-2*pad);
+  if (min === max) return;
+
+  const scaleX = v => padL + (v - min) / (max - min) * (w - padL - padR);
 
   // Title
   bctx.fillStyle = "#111";
   bctx.font = "16px system-ui";
-  bctx.fillText(`Box-and-Whisker Plot: ${label}`, pad, 24);
+  bctx.fillText(`Box-and-Whisker Plot: ${label}`, padL, 22);
 
   // Axis
   bctx.strokeStyle = "#222";
   bctx.beginPath();
-  bctx.moveTo(pad, y);
-  bctx.lineTo(w-pad, y);
+  bctx.moveTo(padL, y);
+  bctx.lineTo(w - padR, y);
+  bctx.stroke();
+
+  // Key x positions
+  const xQ1 = scaleX(s.q1);
+  const xQ3 = scaleX(s.q3);
+  const xMed = scaleX(s.median);
+  const xWMin = scaleX(s.whiskMin);
+  const xWMax = scaleX(s.whiskMax);
+
+  // Whiskers
+  bctx.strokeStyle = "#111";
+  bctx.beginPath();
+  bctx.moveTo(xWMin, y);
+  bctx.lineTo(xQ1, y);
+  bctx.moveTo(xQ3, y);
+  bctx.lineTo(xWMax, y);
+  bctx.stroke();
+
+  // Caps
+  bctx.beginPath();
+  bctx.moveTo(xWMin, y - 14); bctx.lineTo(xWMin, y + 14);
+  bctx.moveTo(xWMax, y - 14); bctx.lineTo(xWMax, y + 14);
   bctx.stroke();
 
   // Box
-  const xQ1 = scaleX(s.q1);
-  const xQ3 = scaleX(s.q3);
   bctx.fillStyle = "#c7d2fe";
-  bctx.fillRect(xQ1, y-20, xQ3-xQ1, 40);
-  bctx.strokeRect(xQ1, y-20, xQ3-xQ1, 40);
+  bctx.fillRect(xQ1, y - 20, xQ3 - xQ1, 40);
+  bctx.strokeRect(xQ1, y - 20, xQ3 - xQ1, 40);
 
   // Median
-  const xMed = scaleX(s.median);
   bctx.beginPath();
-  bctx.moveTo(xMed, y-20);
-  bctx.lineTo(xMed, y+20);
+  bctx.moveTo(xMed, y - 20);
+  bctx.lineTo(xMed, y + 20);
   bctx.stroke();
 
-  // Labels
+  // Labels: Q1, Median (Q2), Q3 with values
+  bctx.fillStyle = "#111";
   bctx.font = "12px system-ui";
-  bctx.fillText("Q1", xQ1-10, y+35);
-  bctx.fillText("Median (Q2)", xMed-22, y-25);
-  bctx.fillText("Q3", xQ3-10, y+35);
+  bctx.fillText(`Q1: ${formatTick(s.q1)}`, xQ1 - 30, y + 45);
+  bctx.fillText(`Median (Q2): ${formatTick(s.median)}`, xMed - 60, y - 30);
+  bctx.fillText(`Q3: ${formatTick(s.q3)}`, xQ3 - 30, y + 45);
 
-  // Whiskers
-  bctx.beginPath();
-  bctx.moveTo(scaleX(s.whiskMin), y);
-  bctx.lineTo(xQ1, y);
-  bctx.moveTo(xQ3, y);
-  bctx.lineTo(scaleX(s.whiskMax), y);
-  bctx.stroke();
+  // Fence labels (clear and inside canvas)
+  bctx.font = "12px system-ui";
+  bctx.fillText(`Lower fence: ${formatTick(s.lowerFence)}`, padL, h - 10);
+  bctx.fillText(`Upper fence: ${formatTick(s.upperFence)}`, w - padR - 180, h - 10);
 
   // Outliers
   bctx.fillStyle = "red";
   s.outliers.forEach(v => {
+    const xo = scaleX(v);
     bctx.beginPath();
-    bctx.arc(scaleX(v), y, 4, 0, 2*Math.PI);
+    bctx.arc(xo, y, 4, 0, 2*Math.PI);
     bctx.fill();
   });
 
@@ -406,10 +499,9 @@ function drawBoxplot(data, s, label) {
   bctx.fillStyle = "#111";
   bctx.font = "12px system-ui";
   bctx.fillText(
-    "Red points indicate unusually large salaries relative to the rest of the data",
-    pad, h - 10
+    "Red points indicate unusually large salaries relative to the rest of the data.",
+    padL, 36
   );
 }
-
 
   
