@@ -1,0 +1,52 @@
+body {
+  font-family: system-ui, Arial, sans-serif;
+  background: #f5f6fa;
+  margin: 0;
+  color: #222;
+}
+
+.container {
+  max-width: 960px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+header h1 {
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #555;
+  margin-top: 0;
+}
+
+.card {
+  background: #ffffff;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.hint {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.results {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+footer {
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+footer .privacy {
+  font-style: italic;
+}
