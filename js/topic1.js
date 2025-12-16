@@ -418,6 +418,10 @@ function drawBoxplot(data, s, label) {
   bctx.font = "12px system-ui";
   bctx.fillText(`Box-and-Whisker Plot: ${label}`, padL, 22);
 
+  bctx.font = "12px system-ui";
+  bctx.fillText("THICK BOX TEST ✅", padL, 42);
+
+
   // Axis
   bctx.strokeStyle = "#222";
   bctx.beginPath();
@@ -459,6 +463,7 @@ function drawBoxplot(data, s, label) {
 
   // Whiskers
   bctx.strokeStyle = "#111";
+  bctx.lineWidth = 3;
   bctx.beginPath();
   bctx.moveTo(xWMin, y);
   bctx.lineTo(xQ1, y);
@@ -484,6 +489,7 @@ function drawBoxplot(data, s, label) {
   bctx.moveTo(xMed, y - 30);
   bctx.lineTo(xMed, y + 30);
   bctx.stroke();
+  bctx.lineWidth = 1;
 
   // Outliers
   bctx.fillStyle = "red";
