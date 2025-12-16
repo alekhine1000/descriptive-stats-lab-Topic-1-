@@ -512,7 +512,7 @@ function drawBoxplot(data, s, label) {
     `Q1: ${formatTick(s.q1)}   |   Median (Q2): ${formatTick(s.median)}   |   Q3: ${formatTick(s.q3)}   |   ` +
     `Lower fence: ${formatTick(s.lowerFence)}   |   Upper fence: ${formatTick(s.upperFence)}`,
     padL,
-    h - 48
+    h -2
   );
 }
 
