@@ -2,6 +2,8 @@
 // Online Stats Solver — Topic 1 (Corrected + Robust)
 // Descriptive Statistics ONLY
 // =====================================================
+const resultsBox = document.getElementById("results");
+if (resultsBox) resultsBox.textContent = "✅ JavaScript loaded. Now choose a CSV file.";
 
 const fileInput = document.getElementById("fileInput");
 const columnSelect = document.getElementById("columnSelect");
