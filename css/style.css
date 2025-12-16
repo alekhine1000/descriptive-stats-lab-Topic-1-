@@ -27,7 +27,6 @@ header h1 {
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-
 .hint {
   font-size: 0.95rem;
   color: #555;
@@ -49,4 +48,7 @@ footer {
 
 footer .privacy {
   font-style: italic;
+}
+body {
+  margin-left: 96px;   /* ≈ 1 inch */
 }
