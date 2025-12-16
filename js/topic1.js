@@ -404,7 +404,8 @@ function drawBoxplot(data, s, label) {
   const h = boxCanvas.height;
 
   const padL = 85, padR = 35, padT = 45, padB = 85;
-  const y = (padT + (h - padB)) / 2;
+  //const y = (padT + (h - padB)) / 2;
+  const y = padT + (h - padT - padB) * 0.55;
 
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -473,13 +474,13 @@ function drawBoxplot(data, s, label) {
 
   // Box
   bctx.fillStyle = "#c7d2fe";
-  bctx.fillRect(xQ1, y - 20, xQ3 - xQ1, 40);
-  bctx.strokeRect(xQ1, y - 20, xQ3 - xQ1, 40);
+  bctx.fillRect(xQ1, y - 30, xQ3 - xQ1, 60);
+  bctx.strokeRect(xQ1, y - 30, xQ3 - xQ1, 60);
 
   // Median
   bctx.beginPath();
-  bctx.moveTo(xMed, y - 20);
-  bctx.lineTo(xMed, y + 20);
+  bctx.moveTo(xMed, y - 30);
+  bctx.lineTo(xMed, y + 30);
   bctx.stroke();
 
   // Outliers
