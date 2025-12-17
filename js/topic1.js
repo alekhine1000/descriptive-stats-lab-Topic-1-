@@ -310,7 +310,7 @@ function drawHistogram(data, label, s) {
 
   // Title + subtitle
   hctx.fillStyle = "#111";
-  hctx.font = "16px system-ui";
+  hctx.font = "13px system-ui";
   hctx.fillText(`Histogram (Frequency): ${label}`, padL, 22);
   hctx.font = "12px system-ui";
   hctx.fillText("Bars show the number of observations in each range", padL, 40);
@@ -327,7 +327,7 @@ function drawHistogram(data, label, s) {
   // Axis labels
   hctx.fillStyle = "#111";
   hctx.font = "13px system-ui";
-  const xLabelY = h - 28;
+  const xLabelY = h - 55;
   hctx.fillText(label, padL + plotW/2 - 30, xLabelY);
   //hctx.fillText(label, padL + plotW/2 - hctx.measureText(label).width / 2, h - 12);
  
