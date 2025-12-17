@@ -507,11 +507,11 @@ function drawBoxplot(data, s, label) {
   bctx.fillText("Red points indicate unusually large values relative to the rest of the data.", padL, 50);
 
   // Info row BELOW diagram
-  bctx.fillStyle = "#111";
-  bctx.font = "12px system-ui";
-  bctx.fillText(
+ // bctx.fillStyle = "#111";
+  //bctx.font = "12px system-ui";
+ // bctx.fillText(
     `Q1: ${formatTick(s.q1)}   |   Median (Q2): ${formatTick(s.median)}   |   Q3: ${formatTick(s.q3)}   |   ` +
-    `Lower fence: ${formatTick(s.lowerFence)}   |   Upper fence: ${formatTick(s.upperFence)}`,
+   `Lower fence: ${formatTick(s.lowerFence)}   |   Upper fence: ${formatTick(s.upperFence)}`,
     padL,
     h -2
   );
