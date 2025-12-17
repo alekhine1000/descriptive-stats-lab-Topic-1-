@@ -328,8 +328,8 @@ function drawHistogram(data, label, s) {
   hctx.fillStyle = "#111";
   hctx.font = "13px system-ui";
   const xLabelY = h - 28;
- // hctx.fillText("${label}", padL + plotW/2 - 35, xLabelY);
-  hctx.fillText(label, padL + plotW/2 - hctx.measureText(label).width / 2, h - 12);
+  hctx.fillText(label, padL + plotW/2 - 35, xLabelY);
+  //hctx.fillText(label, padL + plotW/2 - hctx.measureText(label).width / 2, h - 12);
  
   hctx.save();
   hctx.rotate(-Math.PI/2);
