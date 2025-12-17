@@ -328,7 +328,7 @@ function drawHistogram(data, label, s) {
   hctx.fillStyle = "#111";
   hctx.font = "13px system-ui";
   const xLabelY = h - 28;
-  hctx.fillText("Salary (RM)", padL + plotW/2 - 35, xLabelY);
+  hctx.fillText("${label}", padL + plotW/2 - 35, xLabelY);
 
   hctx.save();
   hctx.rotate(-Math.PI/2);
