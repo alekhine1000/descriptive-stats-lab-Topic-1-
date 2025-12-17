@@ -327,7 +327,7 @@ function drawHistogram(data, label, s) {
   // Axis labels
   hctx.fillStyle = "#111";
   hctx.font = "13px system-ui";
-  const xLabelY = h - 55;
+  const xLabelY = h - 45;
   hctx.fillText(label, padL + plotW/2 - 30, xLabelY);
   //hctx.fillText(label, padL + plotW/2 - hctx.measureText(label).width / 2, h - 12);
  
