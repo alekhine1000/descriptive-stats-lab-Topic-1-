@@ -235,6 +235,7 @@ function formatSummary(col, n, s) {
     `Max     : ${fmt(s.max)}`,
     `SD      : ${fmt(s.sd)}`,
     `Q1      : ${fmt(s.q1)}`,
+    `Q2      : ${fmt(s.median)}`,
     `Q3      : ${fmt(s.q3)}`,
     `IQR     : ${fmt(s.iqr)}`,
     ``,
