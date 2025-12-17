@@ -235,7 +235,6 @@ function formatSummary(col, n, s) {
     `Max     : ${fmt(s.max)}`,
     `SD      : ${fmt(s.sd)}`,
     `Q1      : ${fmt(s.q1)}`,
-    `Q2      : ${fmt(s.median)}`,
     `Q3      : ${fmt(s.q3)}`,
     `IQR     : ${fmt(s.iqr)}`,
     ``,
@@ -507,5 +506,9 @@ function drawBoxplot(data, s, label) {
   bctx.fillStyle = "#111";
   bctx.font = "12px system-ui";
   bctx.fillText("Red points indicate unusually large values relative to the rest of the data.", padL, 50);
+
+  bctx.font = "12px system-ui";
+  bctx.fillStyle = "#111";
+  bctx.fillText(`Q2 (Median) = ${formatTick(s.median)}`, padL, y + 70);
  }
 
