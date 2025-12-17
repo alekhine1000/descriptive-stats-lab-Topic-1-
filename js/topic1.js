@@ -235,6 +235,7 @@ function formatSummary(col, n, s) {
     `Max     : ${fmt(s.max)}`,
     `SD      : ${fmt(s.sd)}`,
     `Q1      : ${fmt(s.q1)}`,
+    `Q2      : ${fmt(s.q2)}`,
     `Q3      : ${fmt(s.q3)}`,
     `IQR     : ${fmt(s.iqr)}`,
     ``,
@@ -448,7 +449,8 @@ function drawBoxplot(data, s, label) {
 
 // ---- Label LF and UF on the diagram ----
   const xLF = scaleX(s.lowerFence);
-  const xUF = scaleX(s.upperFence);
+  const xUF = scaleX(Math.min(s.upperFence, max));
+
 
 // draw small tick marks at LF/UF on the axis
   bctx.strokeStyle = "#444";
