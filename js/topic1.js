@@ -299,6 +299,21 @@ function drawHistogram(data, label, s) {
     counts[i]++;
   });
 
+  // ---- Modal class (from histogram bins) ----
+  let modalBinIndex = 0;
+  let maxFreq = counts[0];
+
+  for (let i = 1; i < counts.length; i++) {
+   if (counts[i] > maxFreq) {
+    maxFreq = counts[i];
+    modalBinIndex = i;
+   }
+  }
+
+  const modalClassLower = min + modalBinIndex * width;
+  const modalClassUpper = modalClassLower + width;
+
+
   const padL = 85, padR = 35, padT = 55, padB = 85;
   const w = histCanvas.width;
   const h = histCanvas.height;
@@ -396,6 +411,10 @@ function drawHistogram(data, label, s) {
     xLabelY + 18
   );
 }
+  hctx.fillText(
+  `Modal class (from histogram): ${formatTick(modalClassLower)} – ${formatTick(modalClassUpper)}`,
+  padL, h - 18
+  );
 
 // ---------------- Boxplot ----------------
 function drawBoxplot(data, s, label) {
