@@ -408,18 +408,18 @@ function drawHistogram(data, label, s) {
   hctx.font = "12px system-ui";
   hctx.fillText(
     "Note that the normal curve shown uses the same mean and standard deviation as the data and is included only for visual comparison.",
-    padL,
+   padL,
   xLabelY + 18
-  );
+   );
  
   // ---- Histogram annotations (below x-axis) ----
-  hctx.fillStyle = "#111";
-  hctx.font = "12px system-ui";
+   hctx.fillStyle = "#111";
+   hctx.font = "12px system-ui";
 
-  hctx.fillText(
+   hctx.fillText(
   `Modal class (from histogram): ${formatTick(modalClassLower)} – ${formatTick(modalClassUpper)}`,
-  padL,
-  h - padB + 38
+   padL,
+   h - padB + 38
   );
 
 
