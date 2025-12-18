@@ -413,14 +413,14 @@ function drawHistogram(data, label, s) {
   );
  
   // ---- Histogram annotations (below x-axis) ----
-hctx.fillStyle = "#111";
-hctx.font = "12px system-ui";
+  hctx.fillStyle = "#111";
+  hctx.font = "12px system-ui";
 
-hctx.fillText(
+  hctx.fillText(
   `Modal class (from histogram): ${formatTick(modalClassLower)} – ${formatTick(modalClassUpper)}`,
   padL,
   h - padB + 38
-);
+  );
 
 
 // ---------------- Boxplot ----------------
