@@ -401,7 +401,7 @@ function drawHistogram(data, label, s) {
     hctx.stroke();
     hctx.lineWidth = 1;
   }
-
+   const xLabelY = h - 28;
   // Sentence placed under the x-axis label
    hctx.fillStyle = "#111";
    hctx.font = "12px system-ui";
