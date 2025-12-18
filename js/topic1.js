@@ -411,7 +411,7 @@ function drawHistogram(data, label, s) {
     padL,
   xLabelY + 18
   );
- }
+ 
   // ---- Histogram annotations (below x-axis) ----
 hctx.fillStyle = "#111";
 hctx.font = "12px system-ui";
