@@ -406,7 +406,7 @@ function drawHistogram(data, label, s) {
   hctx.fillStyle = "#111";
   hctx.font = "12px system-ui";
   hctx.fillText(
-    "The normal curve shown uses the same mean and standard deviation as the data and is included only for visual comparison.",
+    "Note that the normal curve shown uses the same mean and standard deviation as the data and is included only for visual comparison.",
     padL,
   xLabelY + 18
   );
