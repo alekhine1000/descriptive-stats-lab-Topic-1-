@@ -410,7 +410,7 @@ function drawHistogram(data, label, s) {
     padL,
     xLabelY + 18
   );
-}
+ }
   hctx.fillText(
   `Modal class (from histogram): ${formatTick(modalClassLower)} – ${formatTick(modalClassUpper)}`,
   padL, h - 18
