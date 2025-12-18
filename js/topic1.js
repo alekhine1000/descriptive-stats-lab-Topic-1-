@@ -1,3 +1,4 @@
+console.log("JS version 41 loaded");
 // =====================================================
 // Online Stats Solver — Topic 1 (Clean + Robust)
 // Descriptive Statistics ONLY
