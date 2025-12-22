@@ -7,25 +7,67 @@ let currentColumn = null;
 let currentData = null;
 
 // DOM
-const fileInput = document.getElementById('fileInput');
-const columnSelect = document.getElementById('columnSelect');
-const uploadArea = document.getElementById('uploadArea');
-const chooseFileBtn = document.getElementById('chooseFileBtn');
+// DOM (declare ONCE)
+const fileInput = document.getElementById("fileInput");
+const columnSelect = document.getElementById("columnSelect");
+const uploadArea = document.getElementById("uploadArea");
+const chooseFileBtn = document.getElementById("chooseFileBtn");
 
-// Enable Choose File button
-if (fileInput && chooseFileBtn) {
-  chooseFileBtn.addEventListener('click', (e) => {
+const resultsCard = document.getElementById("resultsCard");
+const chartsCard = document.getElementById("chartsCard");
+const statsGrid = document.getElementById("statsGrid");
+const loading = document.getElementById("loading");
+const exportBtn = document.getElementById("exportResults");
+const clearBtn = document.getElementById("clearData");
+const resultsTitle = document.getElementById("resultsTitle");
+
+// Safety check
+if (!fileInput || !chooseFileBtn || !uploadArea) {
+  console.error("Missing #fileInput or #chooseFileBtn or #uploadArea");
+} else {
+  // Choose File button
+  chooseFileBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    fileInput.value = "";   // optional: lets you re-select same file
+    fileInput.value = "";      // allows selecting same file again
     fileInput.click();
+  });
+
+  // Clicking the upload area also opens the file picker
+  uploadArea.addEventListener("click", () => fileInput.click());
+
+  // Drag & drop support
+  uploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadArea.classList.add("dragover");
+  });
+
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.classList.remove("dragover");
+  });
+
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove("dragover");
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      fileInput.files = files;
+      handleFileUpload(files[0]);
+    }
+  });
+
+  // When user picks a file
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileUpload(e.target.files[0]);
+    }
   });
 }
 
-// Also allow clicking the big upload area
-if (uploadArea && fileInput) {
-  uploadArea.addEventListener('click', () => fileInput.click());
-}
+
+
+
 
 const chooseFileBtn = document.getElementById('chooseFileBtn');
 const resultsCard = document.getElementById('resultsCard');
