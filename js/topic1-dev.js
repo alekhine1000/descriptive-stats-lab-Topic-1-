@@ -1,18 +1,3 @@
-// ===== Enable Choose File button =====
-const fileInput = document.getElementById("fileInput");
-const chooseFileBtn = document.getElementById("chooseFileBtn");
-
-if (fileInput && chooseFileBtn) {
-  chooseFileBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();     // IMPORTANT because button is inside uploadArea
-    fileInput.click();       // opens file picker
-  });
-} else {
-  console.error("Missing #fileInput or #chooseFileBtn");
-}
-
-
 // -----------------------------
 // State
 // -----------------------------
@@ -25,6 +10,21 @@ let currentData = null;
 const fileInput = document.getElementById('fileInput');
 const columnSelect = document.getElementById('columnSelect');
 const uploadArea = document.getElementById('uploadArea');
+// Enable Choose File button
+if (fileInput && chooseFileBtn) {
+  chooseFileBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.value = "";   // optional: lets you re-select same file
+    fileInput.click();
+  });
+}
+
+// Also allow clicking the big upload area
+if (uploadArea && fileInput) {
+  uploadArea.addEventListener('click', () => fileInput.click());
+}
+
 const chooseFileBtn = document.getElementById('chooseFileBtn');
 const resultsCard = document.getElementById('resultsCard');
 const chartsCard = document.getElementById('chartsCard');
