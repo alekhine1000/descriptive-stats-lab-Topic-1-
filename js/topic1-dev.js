@@ -1,6 +1,8 @@
 // -----------------------------
 // State
 // -----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+
 let dataTable = null;      // { headers: [], rows: [] }
 let currentStats = null;
 let currentColumn = null;
