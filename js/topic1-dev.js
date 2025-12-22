@@ -10,6 +10,8 @@ let currentData = null;
 const fileInput = document.getElementById('fileInput');
 const columnSelect = document.getElementById('columnSelect');
 const uploadArea = document.getElementById('uploadArea');
+const chooseFileBtn = document.getElementById('chooseFileBtn');
+
 // Enable Choose File button
 if (fileInput && chooseFileBtn) {
   chooseFileBtn.addEventListener('click', (e) => {
