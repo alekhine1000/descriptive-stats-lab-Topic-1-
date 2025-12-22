@@ -60,7 +60,9 @@ fileInput.addEventListener("change", (e) => {
     handleFileUpload(e.target.files[0]);
   }
 });
-
+// ✅ you can put your extra “message” here
+  console.log("Upload handlers attached OK");
+});
 // ...the rest of your solver code continues here...
 
 
