@@ -1,3 +1,18 @@
+// ===== Enable Choose File button =====
+const fileInput = document.getElementById("fileInput");
+const chooseFileBtn = document.getElementById("chooseFileBtn");
+
+if (fileInput && chooseFileBtn) {
+  chooseFileBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();     // IMPORTANT because button is inside uploadArea
+    fileInput.click();       // opens file picker
+  });
+} else {
+  console.error("Missing #fileInput or #chooseFileBtn");
+}
+
+
 // -----------------------------
 // State
 // -----------------------------
