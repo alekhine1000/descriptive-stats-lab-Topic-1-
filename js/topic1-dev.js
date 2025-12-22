@@ -901,96 +901,127 @@
       createBoxPlot();
     }
 
-    function createHistogram() {
-      const n = currentData.length;
-      const bins = Math.max(8, Math.ceil(1 + Math.log2(n))); // Sturges-ish for beginners
+    // Replace your createHistogram() with this version (±4σ normal curve extension)
 
-      const min = Math.min(...currentData);
-      const max = Math.max(...currentData);
+ function createHistogram() {
+  const n = currentData.length;
+  const bins = Math.max(8, Math.ceil(1 + Math.log2(n))); // beginner-friendly
 
-      // Avoid zero width bins
-      const range = max - min;
-      const width = range === 0 ? 1 : range / bins;
+  const dataMin = Math.min(...currentData);
+  const dataMax = Math.max(...currentData);
 
-      const counts = Array(bins).fill(0);
-      const binCenters = [];
+  const range = dataMax - dataMin;
+  const width = range === 0 ? 1 : range / bins;
 
-      for (let i = 0; i < bins; i++) {
-        const binStart = min + i * width;
-        const binEnd = min + (i + 1) * width;
-        binCenters.push((binStart + binEnd) / 2);
-      }
+  // --- Histogram counts (same idea as before) ---
+  const counts = Array(bins).fill(0);
+  const binCenters = [];
 
-      for (const v of currentData) {
-        let i = range === 0 ? 0 : Math.floor((v - min) / width);
-        if (i >= bins) i = bins - 1;
-        if (i < 0) i = 0;
-        counts[i]++;
-      }
+  for (let i = 0; i < bins; i++) {
+    const binStart = dataMin + i * width;
+    const binEnd = dataMin + (i + 1) * width;
+    binCenters.push((binStart + binEnd) / 2);
+  }
 
-      const histogramTrace = {
-        x: binCenters,
-        y: counts,
-        type: 'bar',
-        name: 'Data',
-        marker: { opacity: 0.85 },
-        width: width * 0.9
-      };
+  for (const v of currentData) {
+    let i = range === 0 ? 0 : Math.floor((v - dataMin) / width);
+    if (i >= bins) i = bins - 1;
+    if (i < 0) i = 0;
+    counts[i]++;
+  }
 
-      const traces = [histogramTrace];
+  const histogramTrace = {
+    x: binCenters,
+    y: counts,
+    type: 'bar',
+    name: 'Data',
+    marker: { opacity: 0.85 },
+    width: width * 0.9
+  };
 
-      // Optional Normal curve: only if SD > 0 and range > 0
-      if (currentStats.sd > 0 && range > 0) {
-        const normalX = [];
-        const normalY = [];
-        const mean = currentStats.mean;
-        const std = currentStats.sd;
+  const traces = [histogramTrace];
 
-        for (let x = min; x <= max; x += (max - min) / 120) {
-          const y = (n * width) * normalPDF(x, mean, std);
-          normalX.push(x);
-          normalY.push(y);
-        }
+  // --- Normal curve extension to ±4σ ---
+  const mean = currentStats.mean;
+  const std = currentStats.sd;
 
-        const normalTrace = {
-          x: normalX,
-          y: normalY,
-          type: 'scatter',
-          mode: 'lines',
-          name: 'Normal curve (reference)',
-          yaxis: 'y2'
-        };
+  // Only draw if it makes sense
+  const canDrawNormal = (std > 1e-6) && (range > 0);
 
-        traces.push(normalTrace);
-        document.getElementById('chartTitle').textContent = 'Histogram (with Normal Curve Reference)';
-      } else {
-        document.getElementById('chartTitle').textContent = 'Histogram';
-      }
+  if (canDrawNormal) {
+    const xMin = mean - 4 * std;
+    const xMax = mean + 4 * std;
 
-      const layout = {
-        title: { text: `Histogram: ${currentColumn}`, font: { size: 18, family: 'Inter' } },
-        xaxis: { title: currentColumn, gridcolor: '#f1f5f9', showgrid: true },
-        yaxis: { title: 'Frequency', gridcolor: '#f1f5f9', showgrid: true, side: 'left' },
-        yaxis2: {
-          title: 'Theoretical frequency',
-          overlaying: 'y',
-          side: 'right',
-          showgrid: false
-        },
-        legend: {
-          x: 0.02,
-          y: 0.98,
-          bgcolor: 'rgba(255,255,255,0.85)',
-          bordercolor: '#e2e8f0',
-          borderwidth: 1
-        },
-        margin: { t: 60, b: 80, l: 80, r: 80 },
-        plot_bgcolor: '#fafafa',
-        paper_bgcolor: 'white'
-      };
+    // Sample smoothly
+    const steps = 240;
+    const step = (xMax - xMin) / steps;
 
-      Plotly.newPlot('histogramChart', traces, layout, { responsive: true, displayModeBar: false });
+    const normalX = [];
+    const normalY = [];
+
+    for (let k = 0; k <= steps; k++) {
+      const x = xMin + k * step;
+      // Scale density to expected frequency per bin
+      const y = (n * width) * normalPDF(x, mean, std);
+      normalX.push(x);
+      normalY.push(y);
     }
+
+    const normalTrace = {
+      x: normalX,
+      y: normalY,
+      type: 'scatter',
+      mode: 'lines',
+      name: 'Normal curve (±4σ)',
+      yaxis: 'y2'
+    };
+
+    traces.push(normalTrace);
+
+    // Optional: update the title text element if you use it
+    const titleEl = document.getElementById('chartTitle');
+    if (titleEl) titleEl.textContent = 'Histogram (Normal curve shown over ±4 SD)';
+  } else {
+    const titleEl = document.getElementById('chartTitle');
+    if (titleEl) titleEl.textContent = 'Histogram';
+  }
+
+  const layout = {
+    title: { text: `Histogram: ${currentColumn}`, font: { size: 18, family: 'Inter' } },
+    xaxis: {
+      title: currentColumn,
+      gridcolor: '#f1f5f9',
+      showgrid: true
+    },
+    yaxis: {
+      title: 'Frequency',
+      gridcolor: '#f1f5f9',
+      showgrid: true,
+      side: 'left'
+    },
+    yaxis2: {
+      title: 'Theoretical frequency',
+      overlaying: 'y',
+      side: 'right',
+      showgrid: false
+    },
+    legend: {
+      x: 0.02,
+      y: 0.98,
+      bgcolor: 'rgba(255,255,255,0.85)',
+      bordercolor: '#e2e8f0',
+      borderwidth: 1
+    },
+    margin: { t: 60, b: 80, l: 80, r: 80 },
+    plot_bgcolor: '#fafafa',
+    paper_bgcolor: 'white'
+  };
+
+  Plotly.newPlot('histogramChart', traces, layout, {
+    responsive: true,
+    displayModeBar: false
+  });
+}
 
     function createBoxPlot() {
       // FIX: single marker (no overwriting)
