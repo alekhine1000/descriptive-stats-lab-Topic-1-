@@ -1,3 +1,4 @@
+console.log("✅ topic1-dev.js loaded");
 <!DOCTYPE html>  
 <html lang="en">  
 <head>  
