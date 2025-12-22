@@ -66,11 +66,6 @@ fileInput.addEventListener("change", (e) => {
 });
 
 
-
-
-
-
-
 // -----------------------------
 // Events: Column selection
 // -----------------------------
