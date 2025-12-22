@@ -1,4 +1,9 @@
 console.log("✅ topic1-dev.js loaded");
+document.body.insertAdjacentHTML(
+  "afterbegin",
+  "<div style='background:#ffeb3b;padding:6px;font-weight:bold'>DEV JS RUNNING</div>"
+);
+
 <!DOCTYPE html>  
 <html lang="en">  
 <head>  
