@@ -2,39 +2,541 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Descriptive Statistics Lab — Topic 1 (DEV)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Descriptive Statistics Solver</title>
 
-  <!-- Optional: reuse same CSS as production -->
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    /* DEV banner so you never confuse versions */
-    .dev-banner {
-      background: #b00020;
-      color: #fff;
-      padding: 6px 10px;
-      font-weight: bold;
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --secondary: #64748b;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    .header {
       text-align: center;
+      margin-bottom: 2rem;
+      padding: 3rem 2rem;
+      background: var(--bg-gradient);
+      color: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-xl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.35;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.92;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--bg-gradient);
+    }
+
+    .card:hover { box-shadow: var(--shadow-xl); transform: translateY(-3px); }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--primary);
+    }
+
+    .upload-area {
+      border: 3px dashed var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-area:hover,
+    .upload-area.dragover {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      transform: scale(1.01);
+    }
+
+    .upload-icon {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      transition: transform 0.25s ease;
+    }
+
+    .upload-area:hover .upload-icon { transform: scale(1.08); }
+
+    .file-input { display: none; }
+
+    .btn {
+      background: var(--bg-gradient);
+      color: white;
+      border: none;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary) 0%, #475569 100%);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    }
+
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .form-group { margin-top: 1.5rem; margin-bottom: 1.25rem; }
+
+    .form-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .help-text {
+      color: var(--text-light);
+      margin-top: 0.5rem;
+      display: block;
+      font-size: 0.9rem;
+    }
+
+    .export-section { display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+    .data-preview {
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: var(--shadow);
+      background: white;
+    }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+
+    .data-table th, .data-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .data-table th {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .data-table tr:hover { background: #f8fafc; }
+
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+
+    .alert i { margin-top: 0.2rem; }
+
+    .alert-info {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-warning {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .loading { display: none; text-align: center; padding: 2rem; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 48px; height: 48px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stat-item {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--bg-gradient);
+    }
+
+    .stat-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 650;
+    }
+
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+
+    .mini-guide {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .mini-guide ul { margin-left: 1.2rem; margin-top: 0.5rem; }
+    .mini-guide li { margin: 0.25rem 0; }
+    .mini-guide b { color: var(--primary); }
+
+    .results-area {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      border: 1px solid var(--border);
+      max-height: 420px;
+      overflow-y: auto;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+      white-space: pre-wrap;
+    }
+
+    .chart-container {
+      height: 520px;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: white;
+    }
+
+    .chart-title {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 1rem;
+      padding: 0.9rem 1rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.25rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 0.9rem 1.15rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--text-light);
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .tab:hover { background: #f8fafc; color: var(--primary); }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .main-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .header h1 { font-size: 2rem; }
+      .card { padding: 1.25rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 
 <body>
-  <div class="dev-banner">
-    ⚠ DEVELOPMENT VERSION — Topic 1
-  </div>
-
-  <!-- Copy the SAME HTML body from index.html -->
-  <!-- START -->
-  
-  <!-- Example: -->
   <div class="container">
-    <!-- all your solver HTML goes here exactly as in index.html -->
+
+    <div class="header">
+      <h1><i class="fas fa-chart-bar"></i> Descriptive Statistics Solver</h1>
+      <p>Upload a CSV, pick a numeric variable, and get simple stats + clear charts.</p>
+    </div>
+
+    <div id="alertHost"></div>
+
+    <div class="main-grid">
+      <!-- Left: Controls -->
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-cog"></i> Data Input</h2>
+
+        <div class="upload-area" id="uploadArea" aria-label="Upload CSV">
+          <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h3>Drop your CSV file here</h3>
+          <p>or click to browse</p>
+
+          <input type="file" id="fileInput" class="file-input" accept=".csv" />
+          <button class="btn" id="chooseFileBtn" type="button">
+            <i class="fas fa-folder-open"></i> Choose File
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="columnSelect">
+            <i class="fas fa-list"></i> Select Variable
+          </label>
+          <select id="columnSelect" class="form-select" disabled>
+            <option value="">Select a variable to analyze</option>
+          </select>
+          <small class="help-text" id="numericRuleNote">
+            Tip: A column must have at least <b>3 valid numbers</b>. Blank cells are okay.
+          </small>
+        </div>
+
+        <div class="export-section">
+          <button class="btn" id="exportResults" disabled type="button">
+            <i class="fas fa-download"></i> Export Results
+          </button>
+          <button class="btn btn-secondary" id="clearData" type="button">
+            <i class="fas fa-trash"></i> Clear All
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Preview -->
+      <div class="card">
+        <h2 class="card-title"><i class="fas fa-table"></i> Data Preview</h2>
+
+        <div id="dataPreview" class="data-preview" style="display:none;">
+          <table class="data-table" id="dataTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div id="noDataMessage" class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            Upload a CSV file to see a preview here.
+            <div style="margin-top:0.25rem; font-weight:600; opacity:0.95;">
+              Example CSV: <code>name,score</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card" id="resultsCard" style="display:none;">
+      <h2 class="card-title" id="resultsTitle">
+        <i class="fas fa-calculator"></i> Descriptive Statistics
+      </h2>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="summary" type="button">Summary</button>
+        <button class="tab" data-tab="detailed" type="button">Detailed View</button>
+        <button class="tab" data-tab="raw" type="button">Raw Output</button>
+      </div>
+
+      <div class="tab-content active" id="summary">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="mini-guide">
+          <div><b>Quick reading guide (for beginners):</b></div>
+          <ul>
+            <li><b>Mean</b> = average.</li>
+            <li><b>Median</b> = middle value (after sorting).</li>
+            <li><b>IQR</b> = spread of the middle 50% of the data.</li>
+            <li><b>Outliers</b> = unusual values using the 1.5×IQR rule.</li>
+            <li><b>Mode</b> is most useful for repeated/discrete values. Continuous data often has “no mode”.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tab-content" id="detailed">
+        <div class="results-area" id="detailedResults"></div>
+      </div>
+
+      <div class="tab-content" id="raw">
+        <div class="results-area" id="rawResults"></div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="card" id="chartsCard" style="display:none;">
+      <h2 class="card-title"><i class="fas fa-chart-line"></i> Visualizations</h2>
+
+      <div class="chart-title" id="chartTitle">Histogram (with optional Normal Curve)</div>
+      <div class="chart-container" id="histogramChart"></div>
+
+      <div class="chart-title" style="margin-top: 1.25rem;">Box Plot</div>
+      <div class="chart-container" id="boxplotChart"></div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="font-weight:700;">Processing your data...</p>
+    </div>
   </div>
 
-  <!-- END -->
+  <!-- IMPORTANT: libraries first -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- IMPORTANT: load DEV JS only -->
-  <script src="js/topic1-dev.js"></script>
+  <!-- IMPORTANT: your JS file last -->
+  <script src="js/solver-dev.js"></script>
 </body>
 </html>
