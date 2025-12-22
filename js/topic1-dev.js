@@ -63,8 +63,6 @@ fileInput.addEventListener("change", (e) => {
 
 // ...the rest of your solver code continues here...
 
-});
-
 
 // -----------------------------
 // Events: Column selection
