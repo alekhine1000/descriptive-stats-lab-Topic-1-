@@ -52,3 +52,12 @@ footer .privacy {
 body {
   margin-left: 96px;   /* ≈ 1 inch */
 }
+
+/* Fix for file chooser not opening (don't use display:none on file inputs) */
+.file-input{
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
