@@ -46,5 +46,13 @@ footer .privacy {
 body {
   margin-left: 96px;   /* ≈ 1 inch */
 }
+/* Safe hiding for file input – works in all browsers */
+.file-input {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 
 
